@@ -1,5 +1,7 @@
 const User = require('../models/user.js');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const handleLogin = async (req, res) => {
     const { username, password } = req.body;
@@ -9,17 +11,44 @@ const handleLogin = async (req, res) => {
             .json({ message: 'Username dan password wajib ada' });
     }
 
-    const userFound = await User.findOne({ where: { username } });
-    if (!userFound) {
-        return res
-            .status(401)
-            .json({ message: 'Username atau password salah' });
-    }
-    const validation = await bcrypt.compare(password, userFound.password);
-    if (validation) {
-        res.json({ message: 'Berhasil login' });
-    } else {
-        res.status(401).json({ message: 'Username atau password salah' });
+    try {
+        const userFound = await User.findOne({ where: { username } });
+        if (!userFound) {
+            return res
+                .status(401)
+                .json({ message: 'Username atau password salah' });
+        }
+        const verifikasi = await bcrypt.compare(password, userFound.password);
+        if (!verifikasi) {
+            return res
+                .status(401)
+                .json({ message: 'Username atau password salah' });
+        }
+
+        const accessToken = jwt.sign(
+            { id: userFound.id },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: '5m' }
+        );
+        const refreshToken = jwt.sign(
+            { id: userFound.id },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '1d' }
+        );
+
+        await User.update({ refreshToken }, { where: { id: userFound.id } });
+
+        res.cookie('jwt', refreshToken, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000,
+        });
+        res.json({
+            message: 'Login berhasil',
+            accessToken,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server' });
     }
 };
 

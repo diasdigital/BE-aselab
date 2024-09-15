@@ -11,4 +11,6 @@ const db = new Sequelize(
     }
 );
 
+// const db = new Sequelize(process.env.DB_URI);
+
 module.exports = db;

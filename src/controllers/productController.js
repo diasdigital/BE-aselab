@@ -26,15 +26,13 @@ const getProductById = async (req, res) => {
 const createProduct = async (req, res) => {
     try {
         upload(req, res, async (err) => {
-            if (err.code === 'LIMIT_FILE_SIZE') {
+            if (err?.code === 'LIMIT_FILE_SIZE') {
                 return res
                     .status(413)
                     .json({ message: 'File terlalu besar. Max 3MB' });
             }
 
-            const product = await Product.build(req.body);
-            product.img = req.file.buffer;
-            product.save();
+            await Product.create(req.body);
             res.status(201).json({ message: 'Product berhasil dibuat' });
         });
     } catch (error) {

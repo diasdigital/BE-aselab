@@ -11,6 +11,7 @@ const User = db.define(
         password: DataTypes.STRING,
         phoneNumber: DataTypes.STRING,
         officeAddress: DataTypes.STRING,
+        refreshToken: DataTypes.STRING,
     },
     {
         freezeTableName: true,
