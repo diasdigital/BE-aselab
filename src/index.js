@@ -13,10 +13,7 @@ app.use(express.static('public'));
 app.use(cookieParser());
 
 // Routes
-app.use('/register', require('./routes/registerRoutes.js'));
-app.use('/login', require('./routes/authRoutes.js'));
-app.use('/refresh', require('./routes/refreshRoutes.js'));
-app.use('/logout', require('./routes/logoutRoutes.js'));
+app.use('/', require('./routes/authRoutes.js'));
 
 app.use('/users', verifyJWT, require('./routes/userRoutes.js'));
 app.use('/products', verifyJWT, require('./routes/productRoutes.js'));

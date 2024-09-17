@@ -13,7 +13,7 @@ const Product = db.define(
         productCode: DataTypes.STRING,
         location: DataTypes.STRING,
         description: DataTypes.TEXT,
-        img: DataTypes.BLOB('medium'),
+        img: DataTypes.STRING,
     },
     {
         freezeTableName: true,
