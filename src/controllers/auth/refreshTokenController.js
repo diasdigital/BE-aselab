@@ -10,7 +10,9 @@ const handleRefreshToken = async (req, res) => {
 
     const refreshToken = cookies.jwt;
 
-    const userFound = await User.findOne({ where: { refreshToken } });
+    const userFound = await User.findOne({
+        where: { refresh_token: refreshToken },
+    });
     if (!userFound) {
         return res.status(403).json({ message: 'Invalid refresh token' });
     }
@@ -18,13 +20,13 @@ const handleRefreshToken = async (req, res) => {
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET,
         (err, decoded) => {
-            if (err || userFound.id !== decoded.id) {
+            if (err || userFound.user_id !== decoded.user_id) {
                 return res.status(403).json({
                     message: 'Token verification failed or user mismatch',
                 });
             }
             const accessToken = jwt.sign(
-                { userId: decoded.id },
+                { user_id: decoded.user_id },
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: '5m' }
             );

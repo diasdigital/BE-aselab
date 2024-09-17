@@ -26,17 +26,20 @@ const handleLogin = async (req, res) => {
         }
 
         const accessToken = jwt.sign(
-            { id: userFound.id },
+            { user_id: userFound.user_id },
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: '5m' }
         );
         const refreshToken = jwt.sign(
-            { id: userFound.id },
+            { user_id: userFound.user_id },
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: '1d' }
         );
 
-        await User.update({ refreshToken }, { where: { id: userFound.id } });
+        await User.update(
+            { refresh_token: refreshToken },
+            { where: { user_id: userFound.user_id } }
+        );
 
         res.cookie('jwt', refreshToken, {
             httpOnly: true,
