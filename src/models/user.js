@@ -6,12 +6,17 @@ const { DataTypes } = Sequelize;
 const User = db.define(
     'users',
     {
+        user_id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         email: DataTypes.STRING,
         username: DataTypes.STRING,
         password: DataTypes.STRING,
-        phoneNumber: DataTypes.STRING,
-        officeAddress: DataTypes.STRING,
-        refreshToken: DataTypes.STRING,
+        phone_number: DataTypes.STRING,
+        office_address: DataTypes.STRING,
+        refresh_token: DataTypes.STRING,
     },
     {
         freezeTableName: true,
@@ -19,7 +24,3 @@ const User = db.define(
 );
 
 module.exports = User;
-
-(async () => {
-    await db.sync();
-})();

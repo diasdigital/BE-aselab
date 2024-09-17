@@ -1,19 +1,35 @@
 const { Sequelize } = require('sequelize');
 const db = require('../configs/database.js');
+const User = require('./user.js');
 
 const { DataTypes } = Sequelize;
 
 const Product = db.define(
     'products',
     {
+        product_id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         name: DataTypes.STRING,
         category: DataTypes.STRING,
         quantity: DataTypes.INTEGER,
+        sold: DataTypes.INTEGER,
         price: DataTypes.FLOAT,
-        productCode: DataTypes.STRING,
+        product_code: DataTypes.STRING,
         location: DataTypes.STRING,
         description: DataTypes.TEXT,
-        img: DataTypes.STRING,
+        img1: DataTypes.STRING,
+        img2: DataTypes.STRING,
+        img3: DataTypes.STRING,
+        user_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: User,
+                key: 'user_id',
+            },
+        },
     },
     {
         freezeTableName: true,
@@ -21,7 +37,3 @@ const Product = db.define(
 );
 
 module.exports = Product;
-
-(async () => {
-    await db.sync();
-})();
