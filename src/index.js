@@ -2,6 +2,7 @@ require('dotenv').config();
 const PORT = process.env.PORT | 4000;
 const express = require('express');
 const cors = require('cors');
+const db = require('./configs/database.js');
 const app = express();
 
 const verifyJWT = require('./middlewares/verifyJWT.js');
@@ -13,6 +14,9 @@ app.use(express.static('public'));
 app.use(cookieParser());
 
 // Routes
+(async () => {
+    await db.sync();
+})();
 app.use('/', require('./routes/authRoutes.js'));
 
 app.use('/users', verifyJWT, require('./routes/userRoutes.js'));
