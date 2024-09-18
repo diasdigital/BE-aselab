@@ -1,4 +1,5 @@
 const Product = require('../models/product.js');
+const Report = require('../models/report.js');
 const upload = require('../middlewares/multer.js').array('img', 3);
 
 // const getAllProducts = async (req, res) => {
@@ -19,6 +20,20 @@ const getProductByUser = async (req, res) => {
             where: {
                 user_id: req.user_id,
             },
+            attributes: [
+                'product_id',
+                'name',
+                'category',
+                'quantity',
+                'sold',
+                'price',
+                'product_code',
+                'location',
+                'description',
+                'img1',
+                'img2',
+                'img3',
+            ],
         });
         res.json({
             message: 'Data produk berhasil diambil',
@@ -57,12 +72,39 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     try {
-        const response = await Product.update(req.body, {
+        const {
+            price,
+            quantity: oldStock,
+            sold: oldSold,
+        } = await Product.findOne({
+            where: { product_id: req.params.product_id },
+            attributes: ['price', 'quantity', 'sold'],
+        });
+
+        // Membuat report
+        const { stock, sold } = req.body;
+        if (stock == oldStock && sold == oldSold) {
+            return res.json({ message: 'Tidak ada perubahan stock atau sold' });
+        } else {
+            const report = Report.build();
+            if (stock > oldStock) {
+                report.stockIn = stock - oldStock;
+            }
+            if (sold > oldSold) {
+                report.stockOut = sold - oldSold;
+                report.revenue = price * report.stockOut;
+            }
+            report.product_id = req.params.product_id;
+            await report.save();
+        }
+
+        // Ubah stock dan sold di product
+        await Product.update(req.body, {
             where: {
                 product_id: req.params.product_id,
             },
         });
-        res.json({ message: 'Data produk berhasil diubah' });
+        res.json({ message: 'Data produk berhasil diubah. Laporan ditambah' });
     } catch (error) {
         res.status(500).json({ message: error.message, data: null });
     }
