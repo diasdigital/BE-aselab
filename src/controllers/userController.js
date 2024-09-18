@@ -1,6 +1,5 @@
 const User = require('../models/user.js');
 const upload = require('../middlewares/multer.js').single('img');
-const multer = require('multer');
 
 const getUserLoggedIn = async (req, res) => {
     try {
