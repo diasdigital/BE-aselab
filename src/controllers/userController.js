@@ -1,4 +1,6 @@
 const User = require('../models/user.js');
+const upload = require('../middlewares/multer.js').single('img');
+const multer = require('multer');
 
 const getUserLoggedIn = async (req, res) => {
     try {
@@ -41,12 +43,27 @@ const getUserLoggedIn = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        await User.update(req.body, {
-            where: {
-                user_id: req.user_id,
-            },
+        upload(req, res, async (err) => {
+            if (req.fileValidationError) {
+                return res
+                    .status(400)
+                    .json({ message: req.fileValidationError });
+            }
+            if (err?.code === 'LIMIT_FILE_SIZE') {
+                return res
+                    .status(413)
+                    .json({ message: 'File terlalu besar. Max 3MB' });
+            }
+
+            // masukin filename kalo ada file yang diupload
+            req.body.img = req.file?.filename;
+            await User.update(req.body, {
+                where: {
+                    user_id: req.user_id,
+                },
+            });
+            res.status(200).json({ message: 'User Updated' });
         });
-        res.status(200).json({ message: 'User Updated' });
     } catch (error) {
         res.status(500).json({ message: error.message, data: null });
     }

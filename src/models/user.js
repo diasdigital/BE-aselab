@@ -16,6 +16,7 @@ const User = db.define(
         password: DataTypes.STRING,
         phone_number: DataTypes.STRING,
         office_address: DataTypes.STRING,
+        img: DataTypes.STRING,
         refresh_token: DataTypes.STRING,
     },
     {
