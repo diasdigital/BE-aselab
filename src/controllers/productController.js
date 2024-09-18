@@ -1,25 +1,31 @@
 const Product = require('../models/product.js');
-const upload = require('../middlewares/multer.js').single('img');
+const upload = require('../middlewares/multer.js').array('img', 3);
 
-const getAllProducts = async (req, res) => {
-    try {
-        const response = await Product.findAll();
-        res.status(200).json(response);
-    } catch (error) {
-        console.log(error.message);
-    }
-};
+// const getAllProducts = async (req, res) => {
+//     try {
+//         const response = await Product.findAll();
+//         res.json({
+//             message: 'Data semua produk berhasil diambil',
+//             data: response,
+//         });
+//     } catch (error) {
+//         res.status(500).json({ message: error.message, data: null });
+//     }
+// };
 
-const getProductById = async (req, res) => {
+const getProductByUser = async (req, res) => {
     try {
-        const response = await Product.findOne({
+        const response = await Product.findAll({
             where: {
-                id: req.params.id,
+                user_id: req.user_id,
             },
         });
-        res.status(200).json(response);
+        res.json({
+            message: 'Data produk berhasil diambil',
+            data: response,
+        });
     } catch (error) {
-        console.log(error.message);
+        res.status(500).json({ message: error.message, data: null });
     }
 };
 
@@ -32,44 +38,39 @@ const createProduct = async (req, res) => {
                     .json({ message: 'File terlalu besar. Max 3MB' });
             }
 
-            await Product.create(req.body);
+            const product = await Product.build(req.body);
+            product.user_id = req.user_id;
+
+            product.sold = 0;
+
+            product.img1 = req.files[0]?.filename;
+            product.img2 = req.files[1]?.filename;
+            product.img3 = req.files[2]?.filename;
+
+            await product.save();
             res.status(201).json({ message: 'Product berhasil dibuat' });
         });
     } catch (error) {
-        console.log(error.message);
+        res.status(500).json({ message: error.message, data: null });
     }
 };
 
 const updateProduct = async (req, res) => {
     try {
-        await Product.update(req.body, {
+        const response = await Product.update(req.body, {
             where: {
-                id: req.params.id,
+                product_id: req.params.product_id,
             },
         });
-        res.status(200).json({ message: 'Product berhasil diupdate' });
+        res.json({ message: 'Data produk berhasil diubah' });
     } catch (error) {
-        console.log(error.message);
-    }
-};
-
-const deleteProduct = async (req, res) => {
-    try {
-        await Product.destroy({
-            where: {
-                id: req.params.id,
-            },
-        });
-        res.status(200).json({ msg: 'Product berhasil dihapus' });
-    } catch (error) {
-        console.log(error.message);
+        res.status(500).json({ message: error.message, data: null });
     }
 };
 
 module.exports = {
-    getAllProducts,
-    getProductById,
+    // getAllProducts,
+    getProductByUser,
     createProduct,
     updateProduct,
-    deleteProduct,
 };
