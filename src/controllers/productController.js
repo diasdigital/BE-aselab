@@ -51,6 +51,10 @@ const createProduct = async (req, res) => {
             product.img3 = req.files[2]?.filename;
 
             await product.save();
+            await Report.create({
+                product_id: product.product_id,
+                stock_in: product.quantity,
+            });
             res.status(201).json({ message: 'Product berhasil dibuat' });
         });
     } catch (error) {
@@ -65,7 +69,7 @@ const updateProduct = async (req, res) => {
             quantity: oldStock,
             sold: oldSold,
         } = await Product.findOne({
-            where: { product_id: req.params.product_id },
+            where: { product_id: req.body.product_id },
             attributes: ['price', 'quantity', 'sold'],
         });
 
@@ -76,22 +80,33 @@ const updateProduct = async (req, res) => {
         } else {
             const report = Report.build();
             if (stock > oldStock) {
-                report.stockIn = stock - oldStock;
+                report.stock_in = stock - oldStock;
+            } else {
+                report.stock_in = 0;
             }
             if (sold > oldSold) {
-                report.stockOut = sold - oldSold;
-                report.revenue = price * report.stockOut;
+                report.stock_out = sold - oldSold;
+                report.revenue = price * report.stock_out;
+            } else {
+                report.stock_out = 0;
+                report.revenue = 0;
             }
-            report.product_id = req.params.product_id;
+            report.product_id = req.body.product_id;
             await report.save();
         }
 
         // Ubah stock dan sold di product
-        await Product.update(req.body, {
-            where: {
-                product_id: req.params.product_id,
+        await Product.update(
+            {
+                quantity: stock,
+                sold,
             },
-        });
+            {
+                where: {
+                    product_id: req.body.product_id,
+                },
+            }
+        );
         res.json({ message: 'Data produk berhasil diubah. Laporan ditambah' });
     } catch (error) {
         res.status(500).json({ message: error.message, data: null });
