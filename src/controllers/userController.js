@@ -8,7 +8,14 @@ const getUserLoggedIn = async (req, res) => {
             where: {
                 user_id: req.user_id,
             },
-            attributes: ['email', 'username', 'phone_number', 'office_address'],
+            attributes: [
+                'email',
+                'name',
+                'birthyear',
+                'username',
+                'phone_number',
+                'office_address',
+            ],
         });
         res.status(200).json(response);
     } catch (error) {
