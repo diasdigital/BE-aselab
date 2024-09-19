@@ -12,16 +12,19 @@ const Report = db.define(
             primaryKey: true,
             autoIncrement: true,
         },
-        stockIn: DataTypes.INTEGER,
-        stockOut: DataTypes.INTEGER,
-        revenue: DataTypes.FLOAT,
-        date: DataTypes.DATE,
+        stock_in: { type: DataTypes.INTEGER, defaultValue: 0 },
+        stock_out: { type: DataTypes.INTEGER, defaultValue: 0 },
+        revenue: { type: DataTypes.FLOAT, defaultValue: 0 },
         product_id: {
             type: DataTypes.INTEGER,
             references: {
                 model: Product,
                 key: 'product_id',
             },
+        },
+        createdAt: {
+            type: DataTypes.DATE,
+            field: 'date',
         },
     },
     {
