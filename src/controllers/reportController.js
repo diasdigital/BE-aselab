@@ -17,10 +17,12 @@ const getReport = async (req, res) => {
                         'stock_out',
                         'revenue',
                         'product_id',
-                        'date',
+                        'year',
+                        'month',
+                        'day',
                     ],
                     where: {
-                        date: {
+                        createdAt: {
                             [Op.between]: [start, end],
                         },
                     },

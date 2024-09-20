@@ -1,6 +1,37 @@
 const Product = require('../models/product.js');
 const Report = require('../models/report.js');
 const upload = require('../middlewares/multer.js').array('img', 3);
+const attributes = [
+    'product_id',
+    'name',
+    'category',
+    'quantity',
+    'sold',
+    'price',
+    'product_code',
+    'location',
+    'description',
+    'img1',
+    'img2',
+    'img3',
+];
+
+const getProductByCode = async (req, res) => {
+    try {
+        const response = await Product.findOne({
+            where: {
+                product_code: req.params.product_code,
+            },
+            attributes,
+        });
+        res.json({
+            message: 'Data produk berhasil diambil',
+            data: response,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message, data: null });
+    }
+};
 
 const getProductByUser = async (req, res) => {
     try {
@@ -8,20 +39,7 @@ const getProductByUser = async (req, res) => {
             where: {
                 user_id: req.user_id,
             },
-            attributes: [
-                'product_id',
-                'name',
-                'category',
-                'quantity',
-                'sold',
-                'price',
-                'product_code',
-                'location',
-                'description',
-                'img1',
-                'img2',
-                'img3',
-            ],
+            attributes,
         });
         res.json({
             message: 'Data produk berhasil diambil',
@@ -50,10 +68,18 @@ const createProduct = async (req, res) => {
             product.img2 = req.files[1]?.filename;
             product.img3 = req.files[2]?.filename;
 
+            const obj = new Date();
+            const day = obj.getDate();
+            const month = obj.getMonth() + 1;
+            const year = obj.getFullYear();
+
             await product.save();
             await Report.create({
                 product_id: product.product_id,
                 stock_in: product.quantity,
+                day,
+                month,
+                year,
             });
             res.status(201).json({ message: 'Product berhasil dibuat' });
         });
@@ -91,6 +117,12 @@ const updateProduct = async (req, res) => {
                 report.stock_out = 0;
                 report.revenue = 0;
             }
+
+            const obj = new Date();
+            report.day = obj.getDate();
+            report.month = obj.getMonth() + 1;
+            report.year = obj.getFullYear();
+
             report.product_id = req.params.product_id;
             await report.save();
         }
@@ -114,6 +146,7 @@ const updateProduct = async (req, res) => {
 };
 
 module.exports = {
+    getProductByCode,
     getProductByUser,
     createProduct,
     updateProduct,
