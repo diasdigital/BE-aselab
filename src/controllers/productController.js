@@ -69,7 +69,7 @@ const updateProduct = async (req, res) => {
             quantity: oldStock,
             sold: oldSold,
         } = await Product.findOne({
-            where: { product_id: req.body.product_id },
+            where: { product_id: req.params.product_id },
             attributes: ['price', 'quantity', 'sold'],
         });
 
@@ -91,7 +91,7 @@ const updateProduct = async (req, res) => {
                 report.stock_out = 0;
                 report.revenue = 0;
             }
-            report.product_id = req.body.product_id;
+            report.product_id = req.params.product_id;
             await report.save();
         }
 
@@ -103,7 +103,7 @@ const updateProduct = async (req, res) => {
             },
             {
                 where: {
-                    product_id: req.body.product_id,
+                    product_id: req.params.product_id,
                 },
             }
         );
@@ -114,7 +114,6 @@ const updateProduct = async (req, res) => {
 };
 
 module.exports = {
-    // getAllProducts,
     getProductByUser,
     createProduct,
     updateProduct,

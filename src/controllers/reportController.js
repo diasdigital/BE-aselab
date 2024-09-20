@@ -4,7 +4,7 @@ const Report = require('../models/report.js');
 
 const getReport = async (req, res) => {
     try {
-        const { createdAfter: start, createdBefore: end } = req.body;
+        const { createdAfter: start, createdBefore: end } = req.query;
         const productReports = await Product.findAll({
             where: { user_id: req.user_id },
             attributes: ['name'],
