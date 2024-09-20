@@ -59,6 +59,17 @@ const createProduct = async (req, res) => {
                     .json({ message: 'File terlalu besar. Max 3MB' });
             }
 
+            if (req.body.product_code) {
+                const codeFound = await Product.findOne({
+                    where: { product_code: req.body.product_code },
+                });
+                if (codeFound) {
+                    return res
+                        .status(409)
+                        .json({ message: 'Kode produk sudah digunakan' });
+                }
+            }
+
             const product = await Product.build(req.body);
             product.user_id = req.user_id;
 
@@ -67,13 +78,12 @@ const createProduct = async (req, res) => {
             product.img1 = req.files[0]?.filename;
             product.img2 = req.files[1]?.filename;
             product.img3 = req.files[2]?.filename;
+            await product.save();
 
             const obj = new Date();
             const day = obj.getDate();
             const month = obj.getMonth() + 1;
             const year = obj.getFullYear();
-
-            await product.save();
             await Report.create({
                 product_id: product.product_id,
                 stock_in: product.quantity,
