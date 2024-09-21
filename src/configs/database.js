@@ -1,6 +1,6 @@
 const mysql = require('mysql2');
 const { Sequelize } = require('sequelize');
 
-const db = new Sequelize(process.env.DB_URL, { dialect: 'mysql' });
+const db = new Sequelize(process.env.DB_URI);
 
 module.exports = db;
