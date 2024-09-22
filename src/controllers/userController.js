@@ -13,7 +13,6 @@ const getUserLoggedIn = async (req, res) => {
                 'name',
                 'birthyear',
                 'username',
-                'password',
                 'phone_number',
                 'office_address',
                 'img',
@@ -44,10 +43,20 @@ const updateUser = async (req, res) => {
                 req.body.img = req.file.filename;
             }
 
-            if (req.body.password) {
-                const hashedPwd = await bcrypt.hash(req.body.password, 10);
+            if (req.body.newPassword) {
+                const { oldPassword, newPassword } = req.body;
+                const userFound = await User.findByPk(req.user_id);
+                const verifikasi = await bcrypt.compare(
+                    oldPassword,
+                    userFound.password
+                );
+                if (!verifikasi) {
+                    return res.status(401).json({ message: 'Password salah' });
+                }
+                const hashedPwd = await bcrypt.hash(newPassword, 10);
                 req.body.password = hashedPwd;
             }
+            // return res.json({ data: req.body });
 
             await User.update(req.body, {
                 where: {
