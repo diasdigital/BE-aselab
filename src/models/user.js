@@ -20,6 +20,7 @@ const User = db.define(
         office_address: DataTypes.STRING,
         img: DataTypes.STRING,
         refresh_token: DataTypes.STRING,
+        verified: DataTypes.BOOLEAN,
     },
     {
         freezeTableName: true,
