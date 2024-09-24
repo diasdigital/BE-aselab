@@ -67,7 +67,7 @@ const createProduct = async (req, res) => {
                 const codeFound = await Product.findOne({
                     where: {
                         [Op.and]: [
-                            { product_code: req.params.product_code },
+                            { product_code: req.body.product_code },
                             { user_id: req.user_id },
                         ],
                     },
