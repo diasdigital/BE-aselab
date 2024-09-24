@@ -15,6 +15,7 @@ const getUserLoggedIn = async (req, res) => {
                 'username',
                 'phone_number',
                 'office_address',
+                'img',
             ],
         });
         res.status(200).json(response);
@@ -22,29 +23,6 @@ const getUserLoggedIn = async (req, res) => {
         res.status(500).json({ message: error.message, data: null });
     }
 };
-//     try {
-//         const response = await User.findAll({
-//             attributes: ['email', 'username', 'phone_number', 'office_address'],
-//         });
-//         res.status(200).json(response);
-//     } catch (error) {
-//          res.status(500).json({ message: error.message, data: null });
-//     }
-// };
-
-// const getUserById = async (req, res) => {
-//     try {
-//         const response = await User.findOne({
-//             where: {
-//                 user_id: req.params.user_id,
-//             },
-//             attributes: ['email', 'username', 'phone_number', 'office_address'],
-//         });
-//         res.status(200).json(response);
-//     } catch (error) {
-//          res.status(500).json({ message: error.message, data: null });
-//     }
-// };
 
 const updateUser = async (req, res) => {
     try {
@@ -65,10 +43,20 @@ const updateUser = async (req, res) => {
                 req.body.img = req.file.filename;
             }
 
-            if (req.body.password) {
-                const hashedPwd = await bcrypt.hash(req.body.password, 10);
+            if (req.body.newPassword) {
+                const { oldPassword, newPassword } = req.body;
+                const userFound = await User.findByPk(req.user_id);
+                const verifikasi = await bcrypt.compare(
+                    oldPassword,
+                    userFound.password
+                );
+                if (!verifikasi) {
+                    return res.status(401).json({ message: 'Password salah' });
+                }
+                const hashedPwd = await bcrypt.hash(newPassword, 10);
                 req.body.password = hashedPwd;
             }
+            // return res.json({ data: req.body });
 
             await User.update(req.body, {
                 where: {
