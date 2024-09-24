@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const Product = require('../models/product.js');
 const Report = require('../models/report.js');
 const upload = require('../middlewares/multer.js').array('img', 3);
@@ -20,7 +21,10 @@ const getProductByCode = async (req, res) => {
     try {
         const response = await Product.findOne({
             where: {
-                product_code: req.params.product_code,
+                [Op.and]: [
+                    { product_code: req.params.product_code },
+                    { user_id: req.user_id },
+                ],
             },
             attributes,
         });
